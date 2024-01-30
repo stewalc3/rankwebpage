@@ -71,6 +71,15 @@
     <script>
         var restaurants = [];
 
+        // Load restaurants from local storage on page load
+        window.onload = function () {
+            var savedRestaurants = localStorage.getItem("restaurants");
+            if (savedRestaurants) {
+                restaurants = JSON.parse(savedRestaurants);
+                renderList();
+            }
+        }
+
         function addRestaurant() {
             var restaurantName = document.getElementById("restaurantName").value;
             var rank = parseFloat(document.getElementById("rank").value);
@@ -82,11 +91,8 @@
 
             restaurants.push({ name: restaurantName, rank: rank });
 
-            var list = document.getElementById("restaurantList");
-            var listItem = document.createElement("li");
-            listItem.className = "restaurant-item list-group-item";
-            listItem.innerHTML = `<span>${restaurantName}</span><span>Rank: ${rank}</span>`;
-            list.appendChild(listItem);
+            saveToLocalStorage(); // Save to local storage
+            renderList();
 
             // Clear input fields
             document.getElementById("restaurantName").value = "";
@@ -129,6 +135,10 @@
 
             var blob = new Blob([textToSave], { type: "text/plain;charset=utf-8" });
             saveAs(blob, "restaurant_rankings.txt");
+        }
+
+        function saveToLocalStorage() {
+            localStorage.setItem("restaurants", JSON.stringify(restaurants));
         }
 
         function saveAs(blob, filename) {
@@ -180,6 +190,7 @@
                     }
                 }
             }
+            saveToLocalStorage(); // Save to local storage
             renderList();
         }
     </script>
