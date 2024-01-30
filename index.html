@@ -23,6 +23,7 @@
             background-color: #f9f9f9;
             display: flex;
             justify-content: space-between;
+            cursor: pointer; /* Add cursor pointer for clickable items */
         }
     </style>
 </head>
@@ -117,12 +118,28 @@
         function renderList() {
             var list = document.getElementById("restaurantList");
             list.innerHTML = "";
-            restaurants.forEach(function (restaurant) {
+            restaurants.forEach(function (restaurant, index) {
                 var listItem = document.createElement("li");
                 listItem.className = "restaurant-item list-group-item";
+                listItem.setAttribute("data-index", index); // Set index as data attribute
                 listItem.innerHTML = `<span>${restaurant.name}</span><span>Rank: ${restaurant.rank}</span>`;
+                listItem.addEventListener("click", editRestaurant); // Add click event listener
                 list.appendChild(listItem);
             });
+        }
+
+        function editRestaurant(event) {
+            var index = event.currentTarget.getAttribute("data-index"); // Get index from data attribute
+            var restaurant = restaurants[index];
+            var newName = prompt("Enter new name for the restaurant:", restaurant.name);
+            var newRank = parseFloat(prompt("Enter new rank for the restaurant (0-5):", restaurant.rank));
+
+            if (newName !== null && !isNaN(newRank) && newRank >= 0 && newRank <= 5) {
+                restaurant.name = newName;
+                restaurant.rank = newRank;
+                saveToLocalStorage(); // Save to local storage
+                renderList();
+            }
         }
 
         function saveToFile() {
