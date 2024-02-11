@@ -21,9 +21,13 @@
             padding: 10px;
             border: 1px solid #ccc;
             background-color: #f9f9f9;
+            cursor: pointer; /* Add cursor pointer for clickable items */
             display: flex;
             justify-content: space-between;
-            cursor: pointer; /* Add cursor pointer for clickable items */
+        }
+
+        #rankButton {
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -61,6 +65,11 @@
         <div class="text-center mt-4">
             <button class="btn btn-success mr-2" onclick="importFromFile()">Import from File</button>
             <button class="btn btn-success" onclick="saveToFile()">Save to File</button>
+        </div>
+
+        <!-- Button to initiate ranking -->
+        <div class="text-center" id="rankButton">
+            <button class="btn btn-primary" onclick="rankRestaurants()">Rank Restaurants</button>
         </div>
     </div>
 
@@ -121,25 +130,17 @@
             restaurants.forEach(function (restaurant, index) {
                 var listItem = document.createElement("li");
                 listItem.className = "restaurant-item list-group-item";
-                listItem.setAttribute("data-index", index); // Set index as data attribute
-                listItem.innerHTML = `<span>${restaurant.name}</span><span>Rank: ${restaurant.rank}</span>`;
-                listItem.addEventListener("click", editRestaurant); // Add click event listener
+                listItem.textContent = `${restaurant.name} - Rank: ${restaurant.rank}`;
+                listItem.onclick = function () {
+                    rankInTierList(index);
+                };
                 list.appendChild(listItem);
             });
         }
 
-        function editRestaurant(event) {
-            var index = event.currentTarget.getAttribute("data-index"); // Get index from data attribute
-            var restaurant = restaurants[index];
-            var newName = prompt("Enter new name for the restaurant:", restaurant.name);
-            var newRank = parseFloat(prompt("Enter new rank for the restaurant (0-5):", restaurant.rank));
-
-            if (newName !== null && !isNaN(newRank) && newRank >= 0 && newRank <= 5) {
-                restaurant.name = newName;
-                restaurant.rank = newRank;
-                saveToLocalStorage(); // Save to local storage
-                renderList();
-            }
+        function rankRestaurants() {
+            localStorage.setItem("restaurantsForTierList", JSON.stringify(restaurants));
+            window.location.href = "tier_list.html"; // Redirect to tier list page
         }
 
         function saveToFile() {

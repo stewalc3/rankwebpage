@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rank Restaurants in Tier List</title>
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 20px;
+    }
+
+    .tier {
+      padding: 10px;
+      border: 1px solid #ccc;
+      background-color: #f9f9f9;
+      margin-bottom: 20px;
+    }
+
+    .restaurant-list {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .restaurant-item {
+      background-color: #f9f9f9;
+      border: 1px solid #ccc;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Rank Restaurants in Tier List</h1>
+
+  <div id="tierList"></div>
+
+  <!-- Include jQuery and jQuery UI -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+
+  <script>
+    // Get restaurants from localStorage
+    var restaurants = JSON.parse(localStorage.getItem("restaurantsForTierList")) || [];
+    console.log("Restaurants:", restaurants);
+
+    // Populate the tier list with restaurants
+    $(document).ready(function() {
+      console.log("Document ready");
+      var tiers = ['S Tier', 'A Tier', 'B Tier', 'C Tier', 'D Tier', 'F Tier'];
+      var tierList = $("#tierList");
+      console.log("Tier list:", tierList);
+
+      tiers.forEach(function(tier) {
+        var tierContainer = $("<div>").addClass("tier");
+        $("<h2>").text(tier).appendTo(tierContainer);
+
+        var restaurantList = $("<ul>").addClass("restaurant-list").sortable({
+          connectWith: ".restaurant-list",
+          dropOnEmpty: true,
+          receive: function(event, ui) {
+            var newTier = $(this).closest(".tier").find("h2").text();
+            ui.item.detach().appendTo(this);
+            ui.item.removeClass("ui-state-highlight");
+            ui.item.css("top", "");
+            ui.item.css("left", "");
+            updateRestaurantTier(ui.item.text(), newTier);
+          }
+        }).disableSelection();
+
+        // Add restaurants to respective tiers
+        restaurants.forEach(function(restaurant) {
+          console.log("Checking restaurant:", restaurant);
+          if (restaurant.tier === tier) {
+            var restaurantItem = $("<li>").addClass("restaurant-item").text(restaurant.name);
+            restaurantList.append(restaurantItem);
+          }
+        });
+
+        tierContainer.append(restaurantList);
+        tierList.append(tierContainer);
+      });
+    });
+
+    // Function to update restaurant tier in localStorage
+    function updateRestaurantTier(restaurantName, newTier) {
+      var updatedRestaurants = restaurants.map(function(restaurant) {
+        if (restaurant.name === restaurantName) {
+          restaurant.tier = newTier;
+        }
+        return restaurant;
+      });
+      localStorage.setItem("restaurantsForTierList", JSON.stringify(updatedRestaurants));
+    }
+  </script>
+
+</body>
+</html>
